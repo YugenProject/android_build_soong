@@ -209,13 +209,24 @@ var BannerVars = []string{
 	"PRODUCT_SOONG_NAMESPACES",
 }
 
+// Yugen: display-only relabeling of banner variables. The underlying make
+// variables keep their original names so that makefiles, scripts and
+// `get_build_var` keep working unchanged.
+var BannerVarLabels = map[string]string{
+	"LINEAGE_VERSION": "YUGEN_VERSION",
+}
+
 func Banner(config Config, make_vars map[string]string) string {
 	b := &bytes.Buffer{}
 
 	fmt.Fprintln(b, "============================================")
 	for _, name := range BannerVars {
 		if make_vars[name] != "" {
-			fmt.Fprintf(b, "%s=%s\n", name, make_vars[name])
+			label := name
+			if renamed, ok := BannerVarLabels[name]; ok {
+				label = renamed
+			}
+			fmt.Fprintf(b, "%s=%s\n", label, make_vars[name])
 		}
 	}
 
